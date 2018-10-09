@@ -10,6 +10,7 @@ import (
 	"github.com/liangran2018/lived/materiel"
 	"github.com/liangran2018/lived/plat/home"
 	"github.com/liangran2018/lived/surplus"
+	"github.com/liangran2018/lived/plat"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,8 +23,6 @@ func NewGame(c *gin.Context) {
 		name = defaultName
 	}
 
-	//新建日志文件
-	log.NewLogFile()
 	//开始时间
 	data.StartTime = time.Now().Format("2006-01-02 15:04:05")
 	//上次游戏时间
@@ -43,9 +42,9 @@ func NewGame(c *gin.Context) {
 	//起始拥有物品
 	materiel.NewOwnThings()
 	//地图初始化
-	//plat.NewPublic()
+	plat.NewPublic()
 	//记录
-	log.GetLogger().Log(log.Info, "newgame start", name)
+	log.GetLogger().Log(log.Info, "Newgame Start, NickName: " + name)
 
 	surplus.MainWin(c)
 }

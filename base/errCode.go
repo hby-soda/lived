@@ -19,6 +19,7 @@ const (
 	AlreadyGrowed     = 20004
 	NotGrowed         = 20005
 	BagNotEnough      = 20006
+	PlaceNothing      = 20007
 
 	ParaInvalid = 40000
 

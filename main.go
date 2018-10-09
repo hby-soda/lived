@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"log"
 	"time"
 	"syscall"
 	"context"
@@ -10,6 +9,7 @@ import (
 	"os/signal"
 
 	"github.com/liangran2018/lived/system"
+	"github.com/liangran2018/lived/log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,10 +36,13 @@ func main()  {
 	go func() {
 		err := server.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
-			log.Fatalf("启动程序失败: %s\n", err)
+			panic("启动程序失败: " + err.Error())
 		}
 	}()
 
+	//新建日志文件
+	log.NewLogFile()
+	log.GetLogger().Log(log.Info, "Program Start!!!")
 	// 监听系统信号
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
@@ -48,7 +51,7 @@ func main()  {
 	for {
 		select {
 		case <-ch:
-			log.Println("退出运行")
+			log.GetLogger().Log(log.Info, "Program Exit!!!")
 			server.Shutdown(context.TODO())
 			signal.Stop(ch)
 			os.Exit(0)

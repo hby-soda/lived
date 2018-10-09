@@ -15,6 +15,7 @@ import (
 	"github.com/liangran2018/lived/materiel"
 	"github.com/liangran2018/lived/explore"
 	"github.com/liangran2018/lived/surplus"
+	"github.com/liangran2018/lived/plat"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,7 +43,8 @@ func GetBackup(c *gin.Context) {
 	backupInit()
 	getBackup()
 	if len(backup) == 0 {
-		base.Output(c, base.NoBackupFile, "没有存档")
+		base.Output(c, base.NoBackupFile, nil)
+		log.GetLogger().Log(log.Info, "GetBackup nobackupfile")
 		return
 	}
 
@@ -54,31 +56,33 @@ func ChooseBackup(c *gin.Context) {
 	b := c.Query("backup")
 	if base.Empty(b) {
 		base.Output(c, base.ParaInvalid, nil)
+		log.GetLogger().Log(log.Warning, "ChooseBackup parainvalid")
 		return
 	}
 
 	i, err := base.IntVal(b)
 	if err != nil {
-		base.Output(c, base.TypeConvertErr, err.Error())
+		base.Output(c, base.ParaInvalid, nil)
+		log.GetLogger().Log(log.Warning, "ChooseBackup TypeConvertErr: " + err.Error(), b)
 		return
 	}
 
 	if i < 0 || i >= len(backup) {
 		base.Output(c, base.ParaInvalid, nil)
+		log.GetLogger().Log(log.Warning, "ChooseBackup inputoutrange", i)
 		return
 	}
 
 	fileName = backup[i].FileName + ".json"
 	d, err := loadFile(fileName)
 	if err != nil {
-		base.Output(c, base.OpenFileErr, err.Error())
+		base.Output(c, base.OpenFileErr, nil)
+		log.GetLogger().Log(log.Wrong, "ChooseBackup loadfile err: " + err.Error(), fileName)
 		return
 	}
 
-	//新建日志文件
-	log.NewLogFile()
 	//记录
-	log.GetLogger().Log(log.Info, "open program")
+	log.GetLogger().Log(log.Info, "loadgame " + fileName)
 	load(d)
 	surplus.MainWin(c)
 	backupClear()
@@ -96,7 +100,7 @@ func getBackup() {
 			if err == nil {
 				backup = append(backup, b)
 			} else {
-				log.GetLogger().Log(log.Wrong, "getBackup err", err.Error(), f)
+				log.GetLogger().Log(log.Wrong, "getBackup err: " + err.Error(), f)
 			}
 		}
 	}
@@ -105,6 +109,7 @@ func getBackup() {
 func getFileInfo(file string) (*backupInfo, error) {
 	data, err := loadFile(file)
 	if err != nil {
+		log.GetLogger().Log(log.Wrong, "getFileInfo loadfile err: " + err.Error(), file)
 		return nil, err
 	}
 
@@ -152,11 +157,11 @@ func load(d *base.Data) {
 		home.BigBag = true
 	}
 	//更新各地点上次到访时间
-	//plat.LoadPublic(d.PlatLastTime)
+	plat.LoadPublic(d.PlatLastTime)
 	//更新各地点物品数量
-	//plat.LoadProduct(d.PlatProduct)
+	plat.LoadProduct(d.PlatProduct)
 	//更新各地点动物数量
-	//plat.LoadAnimal(d.PlatAnimal)
+	plat.LoadAnimal(d.PlatAnimal)
 
 	data.StartTime = d.StartTime
 	//上次游戏时间更新

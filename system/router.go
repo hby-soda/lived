@@ -39,6 +39,10 @@ func AddRoute(app *gin.Engine) {
 	app.GET("/api/actioncheck", home.ActionCheck)
 	app.GET("/api/harvest", home.Harvest)
 
+	app.GET("/api/platshow", explore.PlatShow)
+	app.GET("/api/platdetail", explore.Detail)
+	app.GET("/api/platgo", explore.Go)
+
 	app.GET("/api/fight", explore.Fight)
 
 	app.GET("/test", test)

@@ -5,20 +5,22 @@ import (
 )
 
 func riprapInit() {
-	public[lsd] = &Nature{timeConsume:Tc{H:0, Mi:40}, lvl:1}
-	public[lsd].product = map[materiel.Product]*count {
-		materiel.Stone:&count{maxNum:10, increase:6*60},
-		materiel.Pebble:&count{maxNum:18, increase:2*60},
+	public[lsd] = &Nature{Time:Tc{H:0, Mi:40}, Lvl:1}
+
+	public[lsd].Product = map[materiel.Product]*count {
+		materiel.Stone:&count{maxNum:10, Increase:0.17},
+		materiel.Pebble:&count{maxNum:18, Increase:0.5},
 	}
-	public[lsd].animal = map[materiel.Animal]*count {
-		materiel.WeakWolf:&count{maxNum:3, increase:15*60},
-		materiel.Snake:&count{maxNum:9, increase:11*60},
+
+	public[lsd].Animal = map[materiel.Animal]*count {
+		materiel.WeakWolf:&count{maxNum:3, Increase:0.07},
+		materiel.Snake:&count{maxNum:9, Increase:0.09},
 	}
 }
 
 func riprapNew() {
-	public[lsd].product[materiel.Stone].num = 10
-	public[lsd].product[materiel.Pebble].num = 15
-	public[lsd].animal[materiel.Wolf].num = 2
-	public[lsd].animal[materiel.Snake].num = 5
+	public[lsd].Product[materiel.Stone].Num = 10
+	public[lsd].Product[materiel.Pebble].Num = 15
+	public[lsd].Animal[materiel.WeakWolf].Num = 2
+	public[lsd].Animal[materiel.Snake].Num = 5
 }

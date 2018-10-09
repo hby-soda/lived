@@ -34,8 +34,9 @@ func Fight(c *gin.Context) {
 	p := human.GetHuman()
 	e := exploreEquip.e
 	ab := an.Blood
+	ah := p.Hurt
 	arrow := exploreBag.product[materiel.Arrow]
-	zero := 0
+
 	distance := 5
 
 	for {
@@ -61,7 +62,7 @@ func Fight(c *gin.Context) {
 		str = append(str, "你发起进攻")
 
 		if die := attack(true, distance, p.Attack, p.Critical, e[0].EquipHot(),
-			&arrow, e[1].EquipHot(), &ab, an.Defend, an.Dodge, materiel.Fight{}, &str); die {
+			&arrow, e[1].EquipHot(), &ab, &ah, an.Defend, an.Dodge, materiel.Fight{}, &str); die {
 			str = append(str, a.Name()+"死亡，捕猎成功")
 			break
 		}
@@ -74,8 +75,8 @@ func Fight(c *gin.Context) {
 		str = append(str, fmt.Sprintf("你有%d血量，%s有%d血量", p.Blood, a.Name(), ab))
 		str = append(str, a.Name()+"发起反击")
 
-		if die := attack(false, distance, an.Attack, an.Critical, materiel.Fight{}, &zero,
-			materiel.Fight{}, &p.Blood, p.Defend, p.Dodge, e[2].EquipHot(), &str); die {
+		if die := attack(false, distance, an.Attack, an.Critical, materiel.Fight{}, nil,
+			materiel.Fight{}, &p.Blood, nil, p.Defend, p.Dodge, e[2].EquipHot(), &str); die {
 			base.Output(c, 0, str)
 			panic(base.DEAD{Reason: fmt.Sprintf("捕猎被%s打死", a.Name())})
 		}
@@ -95,7 +96,7 @@ func Fight(c *gin.Context) {
 // 距离，进攻者攻击、暴击，远程武器攻击、暴击、数量（箭），近战武器攻击、暴击，防守者血量、防御、闪避，护甲防御、闪避
 // 日志记录（返回防守者剩余血量，是否死亡）
 func attack(humanAttack bool, distance, attackerAtt, attackerCri int, remote materiel.Fight, remoteNum *int,
-	melee materiel.Fight, defenderBld *int, defenderDef, defenderDod int, armor materiel.Fight, str *[]string) bool {
+	melee materiel.Fight, defenderBld, defenderHurt *int, defenderDef, defenderDod int, armor materiel.Fight, str *[]string) bool {
 	// 如果血量为0，直接死亡
 	if *defenderBld <= 0 {
 		return true
@@ -190,6 +191,7 @@ melee:
 		meleeHurt = damage(float64(attackerAtt+melee.Attack), float64(defenderDef))
 	} else {
 		meleeHurt = damage(float64(attackerAtt), float64(defenderDef+armor.Defend))
+		*defenderHurt -= 4
 	}
 
 	*str = append(*str, fmt.Sprintf("造成伤害%d", meleeHurt))
